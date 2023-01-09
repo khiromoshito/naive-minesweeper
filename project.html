@@ -1,0 +1,732 @@
+
+
+<!-- All codes used here were solely written and
+developed by Honneluv Labanan. -->
+
+<html>
+    <head>
+        <title>Minesweeper</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- <style>
+            #main-grid {
+                border: 1px solid rgb(105, 105, 105);
+                border-collapse: collapse;
+            }
+
+            #main-grid td {
+                height: 25px;
+                width: 25px;
+                cursor: pointer;
+                background-color: #999;
+                color: #333;
+                font-size: 16px;
+                text-align: center;
+                font-weight: bold;
+
+                border: 1px solid #555;
+                border-collapse: collapse;
+            }
+
+            #main-grid td.selected {
+                cursor: default;
+                background-color: transparent;
+            }
+
+            #main-grid td.bomb {
+                color: red;
+
+                background-image: url("bomb.png");
+                background-position: center;
+                background-size: 20px auto;
+                background-repeat: no-repeat;
+            }
+
+            #main-grid td.selected-bomb {
+                background-color: #e09695;
+            }
+        </style> -->
+        <style>
+
+            * {
+                font-family: Montserrat, sans-serif;
+            }
+
+            main {
+                background-color: #D1CFE2;
+                border-radius: 5px;
+                width: fit-content;
+                padding: 7px;
+                padding-bottom: 0;
+                position: relative;
+                z-index: 100;
+            }
+
+            #main-grid {
+                padding: 2px;
+                border-radius: 5px;
+                background-color: #fff;
+                border: 2px solid #fff;
+                /* border-collapse: collapse; */
+            }
+
+            #main-grid td {
+                height: 30px;
+                width: 30px;
+                box-sizing: border-box;
+                cursor: pointer;
+                background-color: #52B2CF;
+                border-radius: 5px;
+                color: #4C5C7B;
+                font-size: 17px;
+                text-align: center;
+                font-weight: bold;
+
+                box-shadow: 1px 1px 0 #3B99B6;
+
+                background-size: 20px auto;
+                background-position: center;
+                background-repeat: no-repeat;
+                /*border-collapse: collapse;*/
+            }
+
+            #main-grid td.selected {
+                pointer-events: none;
+                cursor: default;
+                background-color: transparent !important;
+                box-shadow: none !important;
+            }
+
+            #main-grid td.flagged {
+                background-image: url("ic_flag.png");
+            }
+
+
+            #main-grid td.bomb {
+                background-image: url("ic_mine.png");
+            }
+
+            #main-grid td.selected-bomb {
+                background-image: url("ic_mine_red.png");
+                background-color: transparent !important;
+                box-shadow: none !important;
+            }
+
+            main .upper {
+                display: flex;
+                height: 45px;
+                align-items: center;
+                margin-bottom: 5px;
+                padding: 0 5px;
+            }
+
+            main .upper .center {
+                flex: auto;
+                text-align: center;
+            }
+
+            .upper .left, .upper .right {
+                width: 80px;
+            }
+
+            .upper .right .number {
+                float: right;
+            }
+
+            .emoji-btn {
+                height: 40px;
+                width: 40px;
+                cursor: pointer;
+                background-color: #6F8CC3;
+                border: none;
+                border-radius: 4px;
+                box-shadow: 1.5px 1.5px 0 #5E7198;
+
+                background-size: 30px auto;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-image: url("ic_smiley.png");
+            }
+
+            .emoji-btn:active {
+                transform: translate(1px, 1px);
+                box-shadow: 0.5px 0.5px 0 #5E7198;
+            }
+
+            .game.gameover table,
+            .game.success table {
+                pointer-events: none;
+            }
+
+            .game.gameover .emoji-btn {
+                background-image: url("ic_dead.png");
+            }
+
+            .game.success .emoji-btn {
+                background-image: url("ic_cool.png");
+            }
+
+            .upper .number {
+                background-color: #B3B0CF;
+                padding: 8px 10px;
+                font-size: 19px;
+                font-weight: bold;
+                color: #35496F;
+                border-radius: 5px;
+                width: fit-content;
+            }
+
+            .game.gameover #main-grid td,
+            .game.success #main-grid td {
+                background-color: #ACACAC;
+                box-shadow: 1px 1px 0 #8B8B8B;
+            }   
+
+            .game.gameover #main-grid {
+                border: 2px solid #D45D5D;
+            }
+
+            .game.success #main-grid {
+                border: 2px solid #7EC4CF;
+            }
+
+            .game {
+                width: fit-content;
+                padding: 20px;
+            }
+
+            header {
+                display: flex;
+                margin-bottom: 7px;
+                align-items: center;
+            }
+
+            header .difficulties {
+                text-align: right;
+                flex: auto;
+            }
+
+            header .label {
+                font-size: 17px;
+                font-weight: bold;
+                color: #35496F;
+                letter-spacing: 1.25;
+            }
+
+            header .difficulties {
+                font-weight: bold;
+                font-size: 11px;
+                letter-spacing: 1.25;
+                color: #8B8B8B;
+            }
+
+            header span {
+                cursor: pointer;
+            }
+
+            header span:hover {
+                color: #555;
+            }
+
+            footer {
+                display: flex;
+                align-items: center;
+                height: 40px;
+                padding: 0 5px;
+            }
+
+            footer .center {
+                flex: auto;
+                text-align: center;
+                font-size: 12px;
+                color: #939393;
+            }
+
+            footer .right {
+                width: 100px;
+            }
+
+            footer button {
+                cursor: pointer;
+                background-color: #52B2CF;
+                border: none;
+                border-radius: 4px;
+                box-shadow: 1.5px 1.5px 0 #3B99B6;
+                padding: 5px 10px;
+                font-weight: bold;
+                color: #fff;
+            }
+
+            footer button:active {
+                transform: translate(1px, 1px);
+                box-shadow: 0.5px 0.5px 0 #3B99B6;
+                position: relative;
+            }
+
+            .game.success footer button,
+            .game.gameover footer button {
+                background-color: #ACACAC;
+                box-shadow: 1.5px 1.5px 0 #8B8B8B !important;
+                pointer-events: none;
+            }
+
+            .status {
+                z-index: -1;
+                background-color: #E1E1E1;
+                display: flex;
+                padding: 20px 10px 8px 10px;
+                font-size: 13px;
+                font-weight: bold;
+                border-radius: 0 0 5px 5px;
+                color: #393939;
+                width: fit-content;
+                float: right;
+
+                transform: translateY(-45px);
+                transition: transform ease 200ms;
+            }
+
+            .game.success .status,
+            .game.game.gameover .status {
+                transform: translateY(-8px);
+            }
+
+            .game.gameover .status {
+                background-color: #FFD9D9;
+            }
+        
+        </style>
+    </head>
+    <body>
+        <div class="game success">
+            <header>
+                <div class="label">MINESWEEPER</div>
+                <div class="difficulties">
+                    <span onclick="newGame('beginner')">EASY</span> | 
+                    <span onclick="newGame('intermediate')">MEDIUM</span> | 
+                    <span onclick="newGame('expert')">HARD</span>
+                </div>
+            </header>
+            <main>
+                <div class="upper">
+                    <div class="left">
+                        <div class="number" id="flagsLeft">017</div>
+                    </div>
+                    <div class="center">
+                        <button class="emoji-btn" onclick="newGame()"></button>
+                    </div>
+                    <div class="right">
+                        <div class="number" id="clock">01:22</div>
+                    </div>
+                </div>
+                <table id="main-grid"></table>
+                <br/><br/>
+            </main>
+            <footer>
+                <div class="left">
+                    <button onclick="solvePuzzle()">SOLVE</button>
+                </div>
+                <div class="center">
+                    Honneluv Labanan, 2023
+                </div>
+                <div class="right">
+                    <div class="status"></div>
+                </div>
+            </footer>
+        </div>
+        
+        <script>
+
+            const gameElement = document.querySelector(".game");
+            const statusElement = document.querySelector(".status");
+            const flagsLeftElement = document.querySelector("#flagsLeft");
+            const clockElement = document.querySelector("#clock");
+            function generateBombGrid(rows, columns, bombs) {
+                
+                // generate empty rows x columns grid
+                const grid = [];
+                for(let r = 0; r < rows; r++) {
+                    const row = [];
+                    grid.push(row);
+            
+                    for(let c = 0; c < columns; c++) {
+                        /**
+                            let every cell have the following object:
+                            {
+                                hasBomb: (boolean) whether the given cell contains a bomb
+                                neighboringBombs: (integer) number of neighboring bombs
+                                isSelected: (boolean) in gameplay, whether the given cell has already been selected
+                                isFlagged: (boolean) in gameplay, whether the given cell has been flagged
+                            }
+                        */
+            
+                        const obj = {
+                            hasBomb: false,
+                            neighboringBombs: 0,
+                            isSelected: false,
+                            isFlagged: false
+                        };
+            
+                        row.push(obj);
+                    }
+                }
+            
+                // randomly put bombs in grid 
+                for(let i = 0; i < bombs; i++) {
+                    // repeat while random position has already bomb
+                    while(true) {
+            
+                        const bombRow = random(0, rows);
+                        const bombCol = random(0, columns);
+            
+                        const targetCell = grid[bombRow][bombCol];
+                        
+                        if(!targetCell.hasBomb) {
+                            // put bomb in cell
+                            targetCell.hasBomb = true;
+            
+            
+                            // increment bomb count of all eight neighboring cells
+            
+                            // upper left
+                            if(bombRow >= 1 && bombCol >= 1) grid[bombRow-1][bombCol-1].neighboringBombs++;
+            
+                            // upper center
+                            if(bombRow >= 1) grid[bombRow-1][bombCol].neighboringBombs++;
+            
+                            // upper right
+                            if(bombRow >= 1 && bombCol < columns - 1) grid[bombRow-1][bombCol+1].neighboringBombs++;
+            
+                            // left
+                            if(bombCol >= 1) grid[bombRow][bombCol-1].neighboringBombs++;
+            
+                            // right
+                            if(bombCol < columns - 1) grid[bombRow][bombCol+1].neighboringBombs++;
+            
+                            // lower left
+                            if(bombRow < rows - 1 && bombCol >= 1) grid[bombRow+1][bombCol-1].neighboringBombs++;
+            
+                            // lower center
+                            if(bombRow < rows - 1) grid[bombRow+1][bombCol].neighboringBombs++;
+            
+                            // lower right
+                            if(bombRow < rows - 1 && bombCol < columns - 1) grid[bombRow+1][bombCol+1].neighboringBombs++;
+            
+                            break;
+                        }
+                    }
+                }
+                
+                return grid;
+            }
+            
+            // select a cell
+            // return true if cell is non-bomb, otherwise return false (game over);
+            // for every selected cell, callback to `onCellSelect`
+            function selectCell(grid, row, column, onCellSelect) {
+                const targetCell = grid[row][column];
+            
+                if(targetCell.hasBomb) {
+                    return false;
+                } else {
+                    // if cell has 0 neighboring bombs, select all neighbors, recursively
+                    if(targetCell.neighboringBombs === 0) {
+                        // uses depth-first search
+                        const stack = [[ row, column ]];
+                        while(stack.length > 0) {
+                            const [ r, c ] = stack.pop();
+                            const currentCell = grid[r][c];
+
+                            if(currentCell.isSelected) continue;
+
+                            currentCell.isSelected = true;
+                            onCellSelect(r, c);
+            
+                            if(currentCell.neighboringBombs === 0) {
+                                // add neighboring cells to stack
+            
+                                const rows = grid.length;
+                                const columns = grid[0].length;
+                                
+                                // upper left
+                                if(r >= 1 && c >= 1) stack.push([ r-1, c-1 ]);
+            
+                                // upper center
+                                if(r >= 1) stack.push([ r-1, c ]);
+            
+                                // upper right
+                                if(r >= 1 && c < columns - 1) stack.push([ r-1, c+1 ]);
+            
+                                // left
+                                if(c >= 1) stack.push([ r, c-1 ]);
+            
+                                // right
+                                if(c < columns - 1) stack.push([ r, c+1 ]);
+            
+                                // lower left
+                                if(r < rows - 1 && c >= 1) stack.push([ r+1, c-1 ]);
+            
+                                // lower center
+                                if(r < rows - 1) stack.push([ r+1, c ]);
+            
+                                // lower right
+                                if(r < rows - 1 && c < columns - 1) stack.push([ r+1, c+1 ]);
+                            }
+                        }
+                    } else {
+                        targetCell.isSelected = true;
+                        onCellSelect(row, column);
+                    }
+                }
+
+                return true;
+            }
+            
+            // from `from` (inclusive) to `to` (exclusive) 
+            function random(from, to) {
+                return from + Math.floor(Math.random()*(to-from));
+            }
+
+            // adds preceding 0s to fill three digits, considers negative values
+            function threeDigits(value) {
+                if(value >= 0) {
+                    value += "";
+                    if(value.length === 1) return "00" + value;
+                    if(value.length === 2) return "0" + value;
+                    return value;
+                } else {
+                    value = (0-value)+"";
+                    if(value.length === 1) return "-0" + value;
+                    if(value.length === 2) return "-" + value;
+                }
+            }
+
+            function twoDigits(value) {
+                return value < 10 ? "0" + value : value + "";
+            }
+
+            // callable solve function
+            let _solve = () => {};
+            
+            // global clock
+            let clock;
+            
+            // construct interface for the grid;
+            // if game over, trigger `onGameOver` function;
+            // if all safe cells have been selected, trigger `onSuccess` function
+            function constructGridInterface(grid, bombsCount, onGameOver, onSuccess) {
+                const tableElement = document.querySelector("#main-grid");
+                
+                // reset table element and game element
+                tableElement.innerHTML = "";
+                gameElement.classList.remove("success");
+                gameElement.classList.remove("gameover");
+
+                // reset/stop clock
+                if(clock) clearInterval(clock);
+
+
+                // construct cell element matrix to keep track of all cell elements
+                const cellElementMatrix = [];
+
+                const safeCells = grid.length * grid[0].length - bombsCount;
+
+                // keeps track of the number of selected non-bomb (safe) cells
+                let selectedSafeCells = 0;
+
+                // number of active flags
+                let flagsCount = 0;
+
+                // update flags left element
+                flagsLeftElement.innerHTML = threeDigits(bombsCount - flagsCount);
+
+                // initialize event function when a cell is selected;
+                // here, if selected cell has no bomb, 
+                //   the neighboring bomb count is revealed
+                function onCellSelect(row, col) {
+                    const cell = grid[row][col];
+                    if(!cell.hasBomb) {
+                        const neighboringBombs = cell.neighboringBombs;
+                        const cellElement = cellElementMatrix[row][col];
+
+                        // update cell element text (unless 0)
+                        if(neighboringBombs > 0) cellElement.innerHTML = neighboringBombs;
+
+                        // update cell element with "selected" style
+                        cellElement.classList.add("selected");
+
+                        selectedSafeCells++;
+                        if(selectedSafeCells === safeCells) {
+                            isGameOver = true;
+                            gameElement.classList.add("success");
+                            statusElement.innerHTML = "SOLVED!";
+                            onSuccess();
+                        }
+                    }
+                }
+
+                // toggle when game is over
+                let isGameOver = false;
+
+                let isSolving = false;
+
+                for(let r = 0; r < grid.length; r++) {
+                    const row = grid[r];
+                    const rowElement = document.createElement("tr");
+
+                    const cellElementRow = [];
+                    cellElementMatrix.push(cellElementRow);
+                    
+                    for(let c = 0; c < row.length; c++) {
+                        const cell = row[c];
+                        const cellElement = document.createElement("td");
+                        cellElementRow.push(cellElement);
+                        
+                        // configure onclick event of a cell
+                        cellElement.onclick = (() => {
+                            if(!cell.isSelected && !isGameOver) {
+                                const safeClick = selectCell(grid, r, c, onCellSelect);
+                                if(!safeClick) {
+                                    // game over
+                                    isGameOver = true;
+
+                                    // reveal all bombs
+                                    for(let r = 0; r < grid.length; r++) {
+                                        for(let c = 0; c < grid[r].length; c++) {
+                                            if(grid[r][c].hasBomb) {
+                                                const cellElement = cellElementMatrix[r][c];
+                                                cellElement.classList.add("bomb");
+                                            }
+                                        }
+                                    }
+
+                                    cellElement.classList.add("selected-bomb");
+                                    gameElement.classList.add("gameover");
+                                    statusElement.innerHTML = "GAME OVER";
+                                    onGameOver();
+                                }
+                            }
+                            
+                        });
+
+                        // configure onrightclick event (flag non-selected cell)
+                        cellElement.addEventListener("contextmenu", (e) => {
+                            e.preventDefault();
+                            if(!cell.isSelected && !isGameOver) {
+                                if(!cell.isFlagged) {
+                                    cell.isFlagged = true;
+                                    cellElement.classList.add("flagged");
+                                    flagsCount++;
+                                } else {
+                                    cell.isFlagged = false;
+                                    cellElement.classList.remove("flagged");
+                                    flagsCount--;
+                                }
+
+                                // update flags left element
+                                flagsLeftElement.innerHTML = threeDigits(bombsCount - flagsCount);
+                            }
+                        });
+
+                        rowElement.appendChild(cellElement);
+                    }
+
+                    tableElement.appendChild(rowElement);
+                }
+            
+                // initialize solver function
+                _solve = (async () => {
+                    if(isSolving) return;
+                    isSolving = true;
+                    for(let r = 0; r < grid.length && !isGameOver; r++) {
+                        for(let c = 0; c < grid[r].length && !isGameOver; c++) {
+                            const cell = grid[r][c];
+                            if(!cell.hasBomb && !cell.isSelected) {
+                                // wait for 100ms
+                                await new Promise((resolve) => setTimeout(resolve, 100));    
+                                selectCell(grid, r, c, onCellSelect);
+                            }
+                        }
+                    }
+                });
+
+                // start clock
+                const start = Date.now();
+                clock = setInterval(() => {
+                    if(isGameOver) {
+                        clearInterval(clock);
+                        return;
+                    }
+                    const elapsed = Date.now() - start;
+                    const totalSeconds = Math.floor(elapsed / 1000);
+                    const minutes = Math.floor(totalSeconds/60);
+                    const seconds = totalSeconds % 60;
+                    
+                    const clockValue = twoDigits(minutes) + ":" + twoDigits(seconds);
+
+                    // update clock element
+                    clockElement.innerHTML = clockValue;
+                }, 100);
+            }
+
+
+            function startGame(difficulty) {
+                let rows;
+                let columns;
+                let bombs;
+
+                // initialize cell and bomb count by difficulty
+                switch(difficulty) {
+                    case "beginner":
+                        rows = 10;
+                        columns = 10;
+                        bombs = 12;
+                    break;
+                    case "intermediate":
+                        rows = 12;
+                        columns = 20;
+                        bombs = 30;
+                    break;
+                    case "expert":
+                        rows = 12;
+                        columns = 35;
+                        bombs = 90;
+                    break;
+                    default:
+                        throw new Error(`Invalid difficulty '${difficulty}'`);
+                }
+
+                // generate grid
+                const grid = generateBombGrid(rows, columns, bombs);
+
+                function onGameOver() {
+                    // delay by 200 milliseconds
+                    
+                }
+
+                function onSuccess() {
+                    // delay by 200 milliseconds
+                    
+                }
+
+                // construct interface
+                constructGridInterface(grid, bombs, onGameOver, onSuccess);
+            }
+
+            let currentDifficulty = "beginner";
+            function newGame(difficulty = currentDifficulty) {
+                currentDifficulty = difficulty;
+                startGame(difficulty);
+            }
+
+
+            function solvePuzzle() {
+                console.log("Solving...");
+                _solve();
+            }
+
+            newGame();
+
+        </script>
+    </body>
+</html>
